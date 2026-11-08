@@ -21,3 +21,4 @@ documents/
 *.p12
 Thumbs.db
 .DS_Store
+/google*.html
