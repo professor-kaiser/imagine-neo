@@ -1,0 +1,12 @@
+[project]
+name = "photolab-backend"
+version = "0.1.0"
+description = "Imagine Neo Windows shared-memory image backend"
+requires-python = ">=3.12,<3.13"
+dependencies = ["PyYAML>=6.0,<7", "numpy>=2.2,<2.3", "opencv-python>=4.12,<4.13", "pywin32>=311; sys_platform == 'win32'"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-ra"
+

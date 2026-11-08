@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title description">
+  <title id="title">Imagine Neo</title>
+  <desc id="description">A tall, slender black and white stick figure with folded arms and a quiet smile, thinking of neo.</desc>
+  <rect x="8" y="8" width="496" height="496" rx="104" fill="#fff"/>
+  <g stroke="#000" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="263" y="62" width="201" height="112" rx="46" fill="#fff" stroke-width="9"/>
+    <circle cx="250" cy="182" r="8" fill="#000" stroke="none"/>
+    <circle cx="230" cy="198" r="4" fill="#000" stroke="none"/>
+    <g fill="none" stroke-width="12">
+      <path d="M172 178 Q181 239 177 312 M177 312 L146 435 L124 438 M177 312 L213 431 L237 431"/>
+      <path d="M151 205 L129 250 Q128 258 139 257 L207 234"/>
+      <path d="M196 205 L222 250 Q225 258 214 257 L151 236" stroke="#fff" stroke-width="21"/>
+      <path d="M196 205 L222 250 Q225 258 214 257 L151 236"/>
+    </g>
+    <circle cx="171" cy="139" r="38" fill="#fff" stroke-width="11"/>
+    <path d="M151 122 L161 120 M184 118 L194 120" fill="none" stroke-width="4"/>
+    <circle cx="159" cy="136" r="3.5" fill="#000" stroke="none"/>
+    <circle cx="186" cy="134" r="3.5" fill="#000" stroke="none"/>
+    <path d="M160 154 Q174 167 189 150" fill="none" stroke-width="4.5"/>
+  </g>
+  <text x="363" y="139" text-anchor="middle" fill="#000" font-family="Segoe UI, sans-serif" font-weight="700" font-size="70" letter-spacing="-3">neo</text>
+</svg>

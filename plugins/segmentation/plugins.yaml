@@ -1,0 +1,37 @@
+version: 1
+plugins:
+- id: segmentation
+  name: Segmentation d'images
+  description: Segmente les images en utilisant des techniques de traitement d'image
+    avancées.
+  file: plugin.py
+  class: SegmentationPlugin
+  parameters:
+    algorithm:
+      type: text
+      label: Algorithme
+      choices: [thresholding, k-means]
+      default: thresholding
+
+    n_clusters:
+      type: integer
+      label: Nombre de clusters
+      description: "Une image recadrée par cluster, avec les pixels d’origine et un fond transparent."
+      default: 3
+      min: 2
+      max: 64
+      visible_when:
+        algorithm: [k-means]
+
+    color_space:
+      type: text
+      label: Espace colorimétrique
+      choices: [BGRA, HSV]
+      default: BGRA
+      visible_when:
+        algorithm: [k-means]
+
+    background_color:
+      type: color_bgra
+      label: Couleur de fond
+      default: [0, 0, 0, 255]

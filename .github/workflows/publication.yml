@@ -1,0 +1,26 @@
+name: Verify publication
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniforge-version: latest
+          environment-file: backend/environment.yml
+          activate-environment: photolab
+          auto-activate-base: false
+      - name: Verify demo processing
+        shell: bash -el {0}
+        working-directory: backend
+        run: python -m pytest tests/test_grayscale.py tests/test_drawing.py tests/test_plugins.py -q
+      - name: Verify published assets and metadata
+        shell: bash -el {0}
+        run: python scripts/verify_publication.py

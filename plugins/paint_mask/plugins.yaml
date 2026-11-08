@@ -1,0 +1,10 @@
+version: 1
+plugins:
+  - id: mask_paint
+    name: Paint a mask
+    description: Paint over a reference image. Every painted pixel becomes white in the mask.
+    input_kind: painting
+    output_kind: mask
+    file: plugin.py
+    class: PaintMaskPlugin
+    parameters: {}

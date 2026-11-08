@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../ui/Contracts/PluginDescriptor.cs" Link="Contracts/PluginDescriptor.cs" />
+    <Compile Include="../../ui/Contracts/IpcMessages.cs" Link="Contracts/IpcMessages.cs" />
+    <Compile Include="../../ui/Services/NamedPipeClient.cs" Link="Services/NamedPipeClient.cs" />
+    <Compile Include="../../ui/Services/BackendProcessService.cs" Link="Services/BackendProcessService.cs" />
+    <Compile Include="../../ui/Services/SharedMemoryService.cs" Link="Services/SharedMemoryService.cs" />
+    <Compile Include="../../ui/Models/ImageTransform.cs" Link="Models/ImageTransform.cs" />
+    <Compile Include="../../ui/Controls/ImageCanvas/TransformController.cs" Link="Controls/TransformController.cs" />
+    <Compile Include="../../ui/Models/ImageRect.cs" Link="Models/ImageRect.cs" />
+    <Compile Include="../../ui/Rendering/ViewportTransform.cs" Link="Rendering/ViewportTransform.cs" />
+    <Compile Include="../../ui/Controls/SelectionOverlay/SelectionController.cs" Link="Controls/SelectionController.cs" />
+  </ItemGroup>
+</Project>

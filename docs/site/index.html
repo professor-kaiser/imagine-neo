@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Imagine Neo — éditeur d’images Windows avec plugins Python et OpenCV</title>
+  <meta name="description" content="Découvrez Imagine Neo, éditeur d’images Windows en C# et WinUI 3 : plugins Python OpenCV, masques, dessin et démo interactive de débruitage.">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <link rel="canonical" href="https://professor-kaiser.github.io/imagine-neo/">
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:title" content="Imagine Neo — votre atelier d’images sur Windows">
+  <meta property="og:description" content="Une interface WinUI 3, des plugins Python OpenCV et une démo avant/après. Explorez le code et les possibilités.">
+  <meta property="og:url" content="https://professor-kaiser.github.io/imagine-neo/">
+  <meta property="og:image" content="https://professor-kaiser.github.io/imagine-neo/assets/social-preview.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Imagine Neo, éditeur d’images Windows et comparaison de débruitage">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Imagine Neo — Windows image editor">
+  <meta name="twitter:description" content="Native WinUI 3 workspace, Python / OpenCV plugins, image masks and an interactive demo.">
+  <meta name="twitter:image" content="https://professor-kaiser.github.io/imagine-neo/assets/social-preview.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Imagine Neo","applicationCategory":"MultimediaApplication","operatingSystem":"Windows 11 x64","url":"https://professor-kaiser.github.io/imagine-neo/","downloadUrl":"https://github.com/professor-kaiser/imagine-neo","codeRepository":"https://github.com/professor-kaiser/imagine-neo","description":"Éditeur d’images Windows avec interface WinUI 3 et plugins Python OpenCV. Version en développement avec une démo de débruitage.","image":"https://professor-kaiser.github.io/imagine-neo/assets/social-preview.png","license":"https://github.com/professor-kaiser/imagine-neo/blob/main/LICENSE","inLanguage":["fr","en"],"author":{"@type":"Person","name":"professor-kaiser"}}</script>
+  <link rel="stylesheet" href="style.css">
+  <script src="demo.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#content">Aller au contenu</a>
+  <header class="nav wrap">
+    <a class="brand" href="./"><img src="assets/logo.svg" alt="" width="42" height="42">imagine neo</a>
+    <nav aria-label="Navigation principale"><a href="#demo">Démo</a><a href="#features">Fonctionnalités</a><a href="#start">Installer</a><a href="https://github.com/professor-kaiser/imagine-neo">GitHub ↗</a></nav>
+  </header>
+  <main id="content">
+    <section class="hero wrap">
+      <p class="eyebrow"><span class="dot"></span> Windows · Python · OpenCV</p>
+      <h1>Un atelier d’images.<br><span>Des possibilités à coder.</span></h1>
+      <p class="lead">Imagine Neo associe une interface Windows native à des plugins de traitement d’image Python. Explorez, sélectionnez, dessinez et créez vos propres outils.</p>
+      <div class="actions"><a class="button primary" href="#demo">Explorer la démo <span>↓</span></a><a class="button secondary" href="https://github.com/professor-kaiser/imagine-neo">Voir le code sur GitHub ↗</a></div>
+      <p class="caption">Version en développement · Code disponible sur GitHub · Traitement local dans l’application</p>
+      <div class="workspace"><div class="window-label"><span></span><span></span><span></span><p>Imagine Neo / atelier de dessin</p></div><img src="assets/workspace.png" alt="Capture réelle d’Imagine Neo : image au centre, bibliothèque, outils de dessin et propriétés." width="1165" height="850" fetchpriority="high"></div>
+      <p class="caption">Capture de l’atelier de dessin lors d’un test de l’interface.</p>
+    </section>
+    <section class="section wrap" id="demo">
+      <div class="section-heading"><div><p class="eyebrow">Voir le résultat</p><h2>Faites glisser. Comparez.</h2></div><p>Une scène synthétique, traitée par le code réel du projet.</p></div>
+      <div class="demo-toolbar"><label for="effect">Traitement</label><select id="effect"><option value="denoise">Débruitage OpenCV</option><option value="grayscale">Niveaux de gris</option></select><a href="assets/original.png" download>Télécharger l’image source ↗</a></div>
+      <div class="comparison" id="comparison">
+        <img src="assets/original.png" alt="Avant : scène synthétique colorée avec bruit." width="960" height="600">
+        <img id="result" class="result" src="assets/denoise.png" alt="Après : résultat du plugin de débruitage." width="960" height="600">
+        <span class="compare-label before">Avant</span><span class="compare-label after">Après</span>
+        <div class="divider" aria-hidden="true"><span>↔</span></div>
+      </div>
+      <div class="slider-row"><label for="position">Comparaison avant / après</label><input id="position" type="range" min="0" max="100" value="50" aria-label="Position de la séparation avant et après"><output id="position-value" for="position">50 %</output></div>
+      <p id="effect-note" class="caption" aria-live="polite">Débruitage non-local means : le bruit est réduit dans la région centrale ; les pixels hors sélection restent identiques.</p>
+      <noscript><p>Le JavaScript active les réglages du comparateur. Vous pouvez consulter les images directement :
+        <a href="assets/original.png">original</a>, <a href="assets/denoise.png">débruitage</a>, <a href="assets/grayscale.png">niveaux de gris</a>.</p></noscript>
+      <p class="caption">Le navigateur affiche des résultats précalculés. Pour traiter vos images, installez l’application Windows.</p>
+    </section>
+    <section class="section wrap" id="features">
+      <p class="eyebrow">Le projet</p><h2>Une interface native.<br>Un moteur extensible.</h2>
+      <div class="cards">
+        <article><span class="number">01</span><h3>Travailler l’image</h3><p>Import multiple, sélection rectangulaire, rotation, échelle, niveaux de gris, flous, bordures et contours.</p></article>
+        <article><span class="number">02</span><h3>Choisir où agir</h3><p>Masques OpenCV par canal, seuils HSV ou peinture. Choisissez les masques envoyés à chaque plugin.</p></article>
+        <article><span class="number">03</span><h3>Écrire un plugin</h3><p>Une classe Python et un fichier YAML définissent un traitement et ses paramètres dans l’interface commune.</p></article>
+      </div>
+      <div class="status"><strong>Un projet en développement</strong><p>Le bilatéral, la pipette, la palette et certains outils sont incomplets. La segmentation a des échecs de validation connus. L’historique est limité à la session ; l’export enregistre une image PNG ou JPEG.</p><a href="https://github.com/professor-kaiser/imagine-neo/blob/main/docs/STATUS.md">Consulter l’état des vérifications ↗</a></div>
+    </section>
+    <section class="section wrap start" id="start">
+      <div><p class="eyebrow">À vous de jouer</p><h2>Lancez Imagine Neo.</h2><p>Windows 11 x64, Git, SDK .NET 8 x64 et Miniforge / Conda. Ouvrez CMD avec ces outils accessibles.</p><a href="https://github.com/professor-kaiser/imagine-neo#installation-depuis-les-sources">Lire le guide d’installation ↗</a></div>
+      <pre><code>git clone https://github.com/professor-kaiser/imagine-neo.git
+cd imagine-neo
+scripts\setup_conda.cmd
+scripts\run_all.cmd</code></pre>
+    </section>
+    <section class="section wrap english" lang="en"><p class="eyebrow">English</p><h2>A Windows image editor you can extend.</h2><p>Imagine Neo combines C# / WinUI 3 and Win2D with a local Python / NumPy / OpenCV backend. Build YAML plugins, work with image masks and explore real before/after outputs. This is a development preview.</p><a href="https://github.com/professor-kaiser/imagine-neo/blob/main/README.en.md">Read the English documentation ↗</a></section>
+  </main>
+  <footer class="wrap"><a class="brand" href="./">imagine neo</a><p>WinUI 3 · C# · Python · NumPy · OpenCV</p><a href="https://github.com/professor-kaiser/imagine-neo/blob/main/docs/PLUGINS.md">Guide des plugins ↗</a></footer>
+</body>
+</html>

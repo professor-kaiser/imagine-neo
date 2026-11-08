@@ -1,0 +1,8 @@
+version: 1
+plugins:
+- laplacian
+- denoise
+- masks
+- segmentation
+- morphological
+- paint_mask

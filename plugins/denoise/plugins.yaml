@@ -1,0 +1,29 @@
+version: 1
+plugins:
+- id: denoise
+  name: Débruitage
+  description: Réduit le bruit en préservant les contours et la transparence.
+  file: plugin.py
+  class: DenoisePlugin
+  parameters:
+    strength:
+      type: number
+      label: Intensité
+      description: Une valeur plus élevée lisse davantage le bruit.
+      default: 10.0
+      min: 0.1
+      max: 100
+    template_window:
+      type: integer
+      label: Fenêtre de comparaison
+      description: Taille impaire en pixels.
+      default: 7
+      min: 3
+      max: 21
+    search_window:
+      type: integer
+      label: Fenêtre de recherche
+      description: Taille impaire, supérieure ou égale à la fenêtre de comparaison.
+      default: 21
+      min: 3
+      max: 51

@@ -1,0 +1,23 @@
+{
+  "source": "Deterministic synthetic scene; no external photographs",
+  "seed": 2026,
+  "shape": [
+    600,
+    960,
+    4
+  ],
+  "selection": {
+    "x": 80,
+    "y": 70,
+    "width": 800,
+    "height": 460
+  },
+  "plugin": "plugins.denoise.plugin.DenoisePlugin",
+  "parameters": {
+    "strength": 15.0,
+    "template_window": 7,
+    "search_window": 21
+  },
+  "grayscale": "app.processing.filters.to_grayscale",
+  "opencv": "4.12.0"
+}

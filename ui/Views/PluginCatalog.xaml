@@ -1,0 +1,41 @@
+<UserControl x:Class="PhotoLab.UI.Views.PluginCatalog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+    <StackPanel Spacing="12" Padding="8,4">
+      <ComboBox x:Name="ViewMode" Header="Présentation" SelectedIndex="0"
+          HorizontalAlignment="Stretch" SelectionChanged="ViewModeChanged" AutomationProperties.AutomationId="PluginViewMode">
+        <ComboBoxItem Content="Cartes"/><ComboBoxItem Content="Liste déroulante"/>
+      </ComboBox>
+      <TextBlock x:Name="EmptyHint" Text="Connexion au catalogue…" TextWrapping="Wrap" FontSize="12"/>
+      <ListView x:Name="Cards" SelectionMode="Single" SelectionChanged="PluginChanged"
+          IsItemClickEnabled="True" ItemClick="PluginInvoked" HorizontalContentAlignment="Stretch"
+          AutomationProperties.AutomationId="PluginCards">
+        <ListView.ItemContainerStyle>
+          <Style TargetType="ListViewItem">
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+          </Style>
+        </ListView.ItemContainerStyle>
+        <ListView.ItemTemplate>
+          <DataTemplate>
+            <Border Background="{StaticResource SurfaceBrush}" CornerRadius="8" Padding="10"
+                AutomationProperties.Name="{Binding Name}">
+              <StackPanel Spacing="6">
+                <FontIcon Glyph="&#xEA86;" FontSize="20" HorizontalAlignment="Left" Foreground="{StaticResource AccentBrush}"/>
+                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                <TextBlock Text="{Binding Description}" FontSize="11" TextWrapping="Wrap" Foreground="{StaticResource MutedBrush}"/>
+              </StackPanel>
+            </Border>
+          </DataTemplate>
+        </ListView.ItemTemplate>
+      </ListView>
+      <ComboBox x:Name="Dropdown" Header="Plugin" DisplayMemberPath="Name" Visibility="Collapsed"
+          SelectionChanged="PluginChanged" HorizontalAlignment="Stretch" AutomationProperties.AutomationId="PluginDropdown"/>
+      <InfoBar x:Name="Errors" Severity="Warning" IsClosable="False" Title="Plugins indisponibles"/>
+      <TextBlock Text="Après ajout ou modification d’un plugin, utilisez Reconnect."
+          TextWrapping="Wrap" FontSize="11" Foreground="{StaticResource MutedBrush}"/>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

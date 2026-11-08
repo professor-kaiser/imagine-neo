@@ -1,0 +1,13 @@
+name: photolab
+channels:
+  - conda-forge
+  - nodefaults
+dependencies:
+  - python=3.12
+  - numpy=2.2
+  - opencv=4.12
+  - pywin32=311
+  - pytest=8.4
+  - jsonschema=4.25
+  - pyyaml=6.0
+

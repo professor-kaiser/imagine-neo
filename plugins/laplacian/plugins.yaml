@@ -1,0 +1,8 @@
+version: 1
+plugins:
+- id: laplacian
+  name: Filtre Laplacien
+  description: Applique un filtre Laplacien pour détecter les contours et améliorer
+    la netteté.
+  file: plugin.py
+  class: LaplacianPlugin

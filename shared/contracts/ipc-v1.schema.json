@@ -1,0 +1,1853 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://photolab.local/contracts/ipc-v1.schema.json",
+  "title": "Imagine Neo IPC v1",
+  "description": "UTF-8 JSON + LF, maximum 64 KiB. Image pixels only use packed straight-alpha BGRA8 Windows mappings. Arithmetic bounds, finite numeric values, matching extents and result contracts are additionally validated at runtime.",
+  "$defs": {
+    "blur_parameters": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "radius"
+          ],
+          "properties": {
+            "blur_type": {
+              "const": "gaussian"
+            },
+            "radius": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "blur_type",
+            "kernel_size"
+          ],
+          "properties": {
+            "blur_type": {
+              "const": "average"
+            },
+            "kernel_size": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 255
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "blur_type",
+            "kernel_size"
+          ],
+          "properties": {
+            "blur_type": {
+              "const": "median"
+            },
+            "kernel_size": {
+              "type": "integer",
+              "minimum": 3,
+              "maximum": 255,
+              "not": {
+                "multipleOf": 2
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "blur_type",
+            "diameter",
+            "sigma_color",
+            "sigma_space"
+          ],
+          "properties": {
+            "blur_type": {
+              "const": "bilateral"
+            },
+            "diameter": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 255
+            },
+            "sigma_color": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 1000
+            },
+            "sigma_space": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 1000
+            }
+          }
+        }
+      ]
+    },
+    "border_parameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "thickness",
+        "color"
+      ],
+      "properties": {
+        "border_type": {
+          "enum": [
+            "constant",
+            "replicate",
+            "reflect",
+            "reflect_101",
+            "wrap"
+          ],
+          "default": "constant"
+        },
+        "thickness": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 32768
+        },
+        "color": {
+          "$ref": "#/$defs/color"
+        }
+      }
+    },
+    "rectangle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "x",
+        "y",
+        "width",
+        "height"
+      ],
+      "properties": {
+        "x": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "y": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "color": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "r",
+        "g",
+        "b",
+        "a"
+      ],
+      "properties": {
+        "r": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        },
+        "g": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        },
+        "b": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        },
+        "a": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        }
+      }
+    },
+    "pixel_buffer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mapping_name",
+        "width",
+        "height",
+        "channels",
+        "dtype",
+        "pixel_format",
+        "row_stride_bytes",
+        "buffer_size_bytes"
+      ],
+      "properties": {
+        "mapping_name": {
+          "type": "string",
+          "pattern": "^PhotoLab_Image_[A-Za-z0-9_-]{1,100}$"
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 32768
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 32768
+        },
+        "channels": {
+          "const": 4
+        },
+        "dtype": {
+          "const": "uint8"
+        },
+        "pixel_format": {
+          "const": "BGRA8"
+        },
+        "row_stride_bytes": {
+          "type": "integer",
+          "minimum": 4
+        },
+        "buffer_size_bytes": {
+          "type": "integer",
+          "minimum": 4,
+          "maximum": 536870912
+        }
+      }
+    }
+  },
+  "oneOf": [
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol_version",
+        "request_id",
+        "message_type",
+        "batch_id",
+        "image_id",
+        "file_name",
+        "pixel_buffer"
+      ],
+      "properties": {
+        "protocol_version": {
+          "const": 1
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "message_type": {
+          "const": "import_image"
+        },
+        "batch_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "image_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "file_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "pixel_buffer": {
+          "$ref": "#/$defs/pixel_buffer"
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol_version",
+        "request_id",
+        "message_type",
+        "image_id",
+        "result_image_id",
+        "file_name",
+        "output_buffer"
+      ],
+      "properties": {
+        "protocol_version": {
+          "const": 1
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "message_type": {
+          "const": "to_grayscale"
+        },
+        "image_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "result_image_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "file_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "output_buffer": {
+          "$ref": "#/$defs/pixel_buffer"
+        },
+        "selection": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/rectangle"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol_version",
+        "request_id",
+        "message_type",
+        "image_id",
+        "operation",
+        "params",
+        "result_image_id",
+        "file_name",
+        "output_buffer"
+      ],
+      "properties": {
+        "protocol_version": {
+          "const": 1
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "message_type": {
+          "const": "run_operation"
+        },
+        "image_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "operation": {
+          "const": "to_grayscale"
+        },
+        "params": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {}
+        },
+        "result_image_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "file_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "output_buffer": {
+          "$ref": "#/$defs/pixel_buffer"
+        },
+        "selection": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/rectangle"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol_version",
+        "request_id",
+        "message_type",
+        "image_id",
+        "operation",
+        "params",
+        "result_image_id",
+        "file_name",
+        "output_buffer"
+      ],
+      "properties": {
+        "protocol_version": {
+          "const": 1
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "message_type": {
+          "const": "run_operation"
+        },
+        "image_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "operation": {
+          "const": "apply_blur"
+        },
+        "params": {
+          "$ref": "#/$defs/blur_parameters"
+        },
+        "result_image_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "file_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "output_buffer": {
+          "$ref": "#/$defs/pixel_buffer"
+        },
+        "selection": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/rectangle"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol_version",
+        "request_id",
+        "message_type",
+        "image_id",
+        "operation",
+        "params",
+        "result_image_id",
+        "file_name",
+        "output_buffer"
+      ],
+      "properties": {
+        "protocol_version": {
+          "const": 1
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "message_type": {
+          "const": "run_operation"
+        },
+        "image_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "operation": {
+          "const": "apply_border"
+        },
+        "params": {
+          "$ref": "#/$defs/border_parameters"
+        },
+        "result_image_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "file_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "output_buffer": {
+          "$ref": "#/$defs/pixel_buffer"
+        },
+        "selection": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/rectangle"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol_version",
+        "request_id",
+        "message_type",
+        "image_id",
+        "operation",
+        "params",
+        "result_image_id",
+        "file_name",
+        "output_buffer"
+      ],
+      "properties": {
+        "protocol_version": {
+          "const": 1
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "message_type": {
+          "const": "run_operation"
+        },
+        "image_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "operation": {
+          "const": "apply_contours"
+        },
+        "params": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {
+            "threshold1": {
+              "type": "number",
+              "minimum": 0,
+              "default": 100
+            },
+            "threshold2": {
+              "type": "number",
+              "minimum": 0,
+              "default": 200
+            }
+          }
+        },
+        "result_image_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "file_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "output_buffer": {
+          "$ref": "#/$defs/pixel_buffer"
+        },
+        "selection": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/rectangle"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol_version",
+        "request_id",
+        "message_type",
+        "image_id",
+        "operation",
+        "params",
+        "result_image_id",
+        "file_name",
+        "output_buffer"
+      ],
+      "properties": {
+        "protocol_version": {
+          "const": 1
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "message_type": {
+          "const": "run_operation"
+        },
+        "image_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "operation": {
+          "const": "apply_color_separation"
+        },
+        "params": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "mode"
+          ],
+          "properties": {
+            "mode": {
+              "enum": [
+                "red",
+                "green",
+                "blue",
+                "alpha"
+              ]
+            }
+          }
+        },
+        "result_image_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "file_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "output_buffer": {
+          "$ref": "#/$defs/pixel_buffer"
+        },
+        "selection": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/rectangle"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol_version",
+        "request_id",
+        "message_type",
+        "image_id",
+        "operation",
+        "params",
+        "result_image_id",
+        "file_name",
+        "output_buffer"
+      ],
+      "properties": {
+        "protocol_version": {
+          "const": 1
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "message_type": {
+          "const": "run_operation"
+        },
+        "image_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "operation": {
+          "const": "replace_selection_with_color"
+        },
+        "params": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "color"
+          ],
+          "properties": {
+            "color": {
+              "$ref": "#/$defs/color"
+            }
+          }
+        },
+        "result_image_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "file_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "output_buffer": {
+          "$ref": "#/$defs/pixel_buffer"
+        },
+        "selection": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/rectangle"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol_version",
+        "request_id",
+        "message_type",
+        "image_id",
+        "operation",
+        "params",
+        "result_image_id",
+        "file_name",
+        "output_buffer"
+      ],
+      "properties": {
+        "protocol_version": {
+          "const": 1
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "message_type": {
+          "const": "run_operation"
+        },
+        "image_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "operation": {
+          "const": "replace_selection_with_region"
+        },
+        "params": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "source_image_id",
+            "source_region"
+          ],
+          "properties": {
+            "source_image_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "source_region": {
+              "$ref": "#/$defs/rectangle"
+            }
+          }
+        },
+        "result_image_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "file_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "output_buffer": {
+          "$ref": "#/$defs/pixel_buffer"
+        },
+        "selection": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/rectangle"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol_version",
+        "request_id",
+        "message_type",
+        "image_id",
+        "operation",
+        "params"
+      ],
+      "properties": {
+        "protocol_version": {
+          "const": 1
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "message_type": {
+          "const": "run_operation"
+        },
+        "image_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "operation": {
+          "const": "pick_color"
+        },
+        "params": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "x",
+            "y"
+          ],
+          "properties": {
+            "x": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 32767
+            },
+            "y": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 32767
+            }
+          }
+        },
+        "selection": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/rectangle"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol_version",
+        "request_id",
+        "message_type",
+        "image_id",
+        "operation",
+        "params"
+      ],
+      "properties": {
+        "protocol_version": {
+          "const": 1
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "message_type": {
+          "const": "run_operation"
+        },
+        "image_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "operation": {
+          "const": "extract_palette"
+        },
+        "params": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {
+            "max_colors": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 256,
+              "default": 16
+            }
+          }
+        },
+        "selection": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/rectangle"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol_version",
+        "request_id",
+        "message_type",
+        "image_id",
+        "operation",
+        "params",
+        "result_image_id",
+        "file_name",
+        "output_buffer"
+      ],
+      "properties": {
+        "protocol_version": {
+          "const": 1
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "message_type": {
+          "const": "run_operation"
+        },
+        "image_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "operation": {
+          "const": "apply_to_selection"
+        },
+        "params": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "operation",
+                "params"
+              ],
+              "properties": {
+                "operation": {
+                  "const": "to_grayscale"
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [],
+                  "properties": {}
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "operation",
+                "params"
+              ],
+              "properties": {
+                "operation": {
+                  "const": "apply_blur"
+                },
+                "params": {
+                  "$ref": "#/$defs/blur_parameters"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "operation",
+                "params"
+              ],
+              "properties": {
+                "operation": {
+                  "const": "apply_border"
+                },
+                "params": {
+                  "$ref": "#/$defs/border_parameters"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "operation",
+                "params"
+              ],
+              "properties": {
+                "operation": {
+                  "const": "apply_contours"
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [],
+                  "properties": {
+                    "threshold1": {
+                      "type": "number",
+                      "minimum": 0,
+                      "default": 100
+                    },
+                    "threshold2": {
+                      "type": "number",
+                      "minimum": 0,
+                      "default": 200
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "operation",
+                "params"
+              ],
+              "properties": {
+                "operation": {
+                  "const": "apply_color_separation"
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "mode"
+                  ],
+                  "properties": {
+                    "mode": {
+                      "enum": [
+                        "red",
+                        "green",
+                        "blue",
+                        "alpha"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "result_image_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "file_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "output_buffer": {
+          "$ref": "#/$defs/pixel_buffer"
+        },
+        "selection": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/rectangle"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol_version",
+        "request_id",
+        "message_type"
+      ],
+      "properties": {
+        "protocol_version": {
+          "const": 1
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "message_type": {
+          "const": "ping"
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol_version",
+        "request_id",
+        "message_type"
+      ],
+      "properties": {
+        "protocol_version": {
+          "const": 1
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "message_type": {
+          "const": "list_images"
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol_version",
+        "request_id",
+        "message_type"
+      ],
+      "properties": {
+        "protocol_version": {
+          "const": 1
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "message_type": {
+          "const": "shutdown"
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol_version",
+        "request_id",
+        "message_type",
+        "image_id"
+      ],
+      "properties": {
+        "protocol_version": {
+          "const": 1
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "message_type": {
+          "const": "remove_image"
+        },
+        "image_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      }
+    },
+    {
+      "type": "object",
+      "required": [
+        "protocol_version",
+        "message_type",
+        "request_id",
+        "image_id",
+        "status"
+      ],
+      "properties": {
+        "protocol_version": {
+          "const": 1
+        },
+        "message_type": {
+          "enum": [
+            "image_imported",
+            "image_removed",
+            "pong",
+            "images_listed",
+            "shutdown_ack",
+            "error",
+            "image_processed",
+            "color_picked",
+            "palette_extracted",
+            "plugins_listed",
+            "plugin_results_ready",
+            "plugin_results_copied",
+            "plugin_results_released"
+          ]
+        },
+        "request_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "image_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "status": {
+          "enum": [
+            "ok",
+            "error"
+          ]
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "message": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        },
+        "images": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "image_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "backend_revision": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "SHA-256 snapshot of backend Python sources loaded at process startup, returned by pong."
+        },
+        "backend_pid": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "removed": {
+          "type": "boolean"
+        },
+        "batch_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "result_image_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "file_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "color": {
+          "$ref": "#/$defs/color"
+        },
+        "palette": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 256,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "color",
+              "count",
+              "frequency"
+            ],
+            "properties": {
+              "color": {
+                "$ref": "#/$defs/color"
+              },
+              "count": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "frequency": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              }
+            }
+          }
+        },
+        "plugins": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "name",
+              "description",
+              "parameters"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "parameters": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "output_kind": {
+                "type": "string",
+                "enum": ["image", "mask"],
+                "default": "image"
+              },
+              "input_kind": {
+                "type": "string",
+                "enum": ["image", "painting"],
+                "default": "image"
+              }
+            }
+          }
+        },
+        "plugin_errors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol_version",
+        "request_id",
+        "message_type",
+        "image_id",
+        "operation",
+        "params",
+        "result_image_id",
+        "file_name",
+        "output_buffer",
+        "mask_buffer"
+      ],
+      "properties": {
+        "protocol_version": {
+          "const": 1
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "message_type": {
+          "const": "run_operation"
+        },
+        "image_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "operation": {
+          "const": "apply_drawing"
+        },
+        "params": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {}
+        },
+        "result_image_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "file_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "output_buffer": {
+          "$ref": "#/$defs/pixel_buffer"
+        },
+        "selection": {
+          "type": "null"
+        },
+        "mask_buffer": {
+          "$ref": "#/$defs/pixel_buffer"
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol_version",
+        "request_id",
+        "message_type",
+        "image_id",
+        "operation",
+        "params",
+        "result_image_id",
+        "file_name",
+        "output_buffer"
+      ],
+      "properties": {
+        "protocol_version": {
+          "const": 1
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "message_type": {
+          "const": "run_operation"
+        },
+        "image_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "operation": {
+          "const": "rotate_image"
+        },
+        "params": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "angle_degrees"
+          ],
+          "properties": {
+            "angle_degrees": {
+              "type": "number",
+              "minimum": -360,
+              "maximum": 360
+            }
+          }
+        },
+        "result_image_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "file_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "output_buffer": {
+          "$ref": "#/$defs/pixel_buffer"
+        },
+        "selection": {
+          "type": "null"
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol_version",
+        "request_id",
+        "message_type",
+        "image_id",
+        "operation",
+        "params",
+        "result_image_id",
+        "file_name",
+        "output_buffer"
+      ],
+      "properties": {
+        "protocol_version": {
+          "const": 1
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "message_type": {
+          "const": "run_operation"
+        },
+        "image_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "operation": {
+          "const": "scale_image"
+        },
+        "params": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "scale_factor"
+          ],
+          "properties": {
+            "scale_factor": {
+              "type": "number",
+              "minimum": 0.01,
+              "maximum": 8
+            }
+          }
+        },
+        "result_image_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "file_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "output_buffer": {
+          "$ref": "#/$defs/pixel_buffer"
+        },
+        "selection": {
+          "type": "null"
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol_version",
+        "request_id",
+        "message_type",
+        "image_id",
+        "operation",
+        "params",
+        "result_image_id",
+        "file_name",
+        "output_buffer"
+      ],
+      "properties": {
+        "protocol_version": {
+          "const": 1
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "message_type": {
+          "const": "run_operation"
+        },
+        "image_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "operation": {
+          "const": "rotate_scale_image"
+        },
+        "params": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "angle_degrees",
+            "scale_factor"
+          ],
+          "properties": {
+            "angle_degrees": {
+              "type": "number",
+              "minimum": -360,
+              "maximum": 360
+            },
+            "scale_factor": {
+              "type": "number",
+              "minimum": 0.01,
+              "maximum": 8
+            }
+          }
+        },
+        "result_image_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "file_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "output_buffer": {
+          "$ref": "#/$defs/pixel_buffer"
+        },
+        "selection": {
+          "type": "null"
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol_version",
+        "message_type",
+        "request_id"
+      ],
+      "properties": {
+        "protocol_version": {
+          "const": 1
+        },
+        "message_type": {
+          "const": "list_plugins"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol_version",
+        "request_id",
+        "message_type",
+        "image_id",
+        "operation",
+        "params",
+        "result_image_id",
+        "file_name"
+      ],
+      "properties": {
+        "protocol_version": {
+          "const": 1
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "message_type": {
+          "const": "run_operation"
+        },
+        "image_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "operation": {
+          "const": "run_plugin"
+        },
+        "params": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "plugin_id",
+            "arguments"
+          ],
+          "properties": {
+            "plugin_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            },
+            "mask_outside_value": {
+              "type": "integer",
+              "enum": [0, 255],
+              "default": 0
+            },
+            "arguments": {
+              "type": "object",
+              "additionalProperties": {
+                "oneOf": [
+                  { "type": ["string", "number", "boolean"] },
+                  {
+                    "type": "array", "minItems": 3, "maxItems": 4,
+                    "items": { "type": "integer", "minimum": 0, "maximum": 255 }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "result_image_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "file_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "output_buffer": {
+          "$ref": "#/$defs/pixel_buffer"
+        },
+        "selection": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/rectangle"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "mask_buffers": {
+          "type": "array",
+          "maxItems": 64,
+          "items": {
+            "$ref": "#/$defs/pixel_buffer"
+          }
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol_version",
+        "message_type",
+        "request_id",
+        "result_image_id",
+        "output_buffers"
+      ],
+      "properties": {
+        "protocol_version": {
+          "const": 1
+        },
+        "message_type": {
+          "const": "read_plugin_results"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "result_image_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "output_buffers": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "items": {
+            "$ref": "#/$defs/pixel_buffer"
+          }
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol_version",
+        "message_type",
+        "request_id",
+        "result_image_id"
+      ],
+      "properties": {
+        "protocol_version": {
+          "const": 1
+        },
+        "message_type": {
+          "const": "release_plugin_results"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "result_image_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      }
+    }
+  ]
+}

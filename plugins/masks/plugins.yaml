@@ -1,0 +1,66 @@
+version: 1
+plugins:
+  - id: mask_from_image
+    name: Image as mask
+    description: Use an existing mask image. Visible nonzero pixels become white; black pixels are excluded.
+    output_kind: mask
+    file: plugin.py
+    class: ImageMaskPlugin
+    parameters:
+      invert:
+        type: boolean
+        label: Invert mask
+        default: false
+  - id: mask_threshold
+    name: Convert image to mask
+    description: Select a channel and an inclusive value range. White pixels are active.
+    output_kind: mask
+    file: plugin.py
+    class: ThresholdMaskPlugin
+    parameters:
+      channel:
+        type: text
+        label: Channel
+        choices: [gray, blue, green, red, alpha, hsv]
+        default: gray
+      lower:
+        type: integer
+        label: Lower threshold (inclusive)
+        default: 128
+        min: 0
+        max: 255
+        palette_channel: channel
+        visible_when:
+          channel: [gray, blue, green, red, alpha]
+      upper:
+        type: integer
+        label: Upper threshold (inclusive)
+        default: 255
+        min: 0
+        max: 255
+        palette_channel: channel
+        visible_when:
+          channel: [gray, blue, green, red, alpha]
+      lower_hsv:
+        type: hsv
+        label: Lower threshold (HSV)
+        default: [0, 0, 0]
+        visible_when:
+          channel: [hsv]
+      upper_hsv:
+        type: hsv
+        label: Upper threshold (HSV)
+        description: "H: 0-179; S/V: 0-255. Lower H > upper H selects across zero (reds)."
+        default: [179, 255, 255]
+        visible_when:
+          channel: [hsv]
+      invert:
+        type: boolean
+        label: Invert mask
+        default: false
+      blur_size:
+        type: integer
+        label: Blur kernel (odd; 1 disables)
+        default: 1
+        min: 1
+        max: 255

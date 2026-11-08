@@ -1,0 +1,35 @@
+version: 1
+plugins:
+- id: morphological
+  name: Morphological Operations
+  description: Applique des opérations morphologiques sur les images pour améliorer la segmentation.
+  file: plugin.py
+  class: MorphologicalPlugin
+  parameters:
+    operation:
+      type: text
+      label: Opération morphologique
+      choices: [dilation, erosion, opening, closing, gradient, top-hat, black-hat]
+      default: dilation
+
+    kernel:
+      type: text
+      label: Type de noyau
+      choices: [rectangular, elliptical, cross-shaped, diamond]
+      default: rectangular
+
+    kernel_size:
+      type: integer
+      label: Taille du noyau
+      description: "Taille du noyau utilisé pour l'opération morphologique."
+      default: 3
+      min: 1
+      max: 15
+
+    iterations:
+      type: integer
+      label: Nombre d'itérations
+      description: "Nombre d'itérations de l'opération morphologique."
+      default: 1
+      min: 1
+      max: 10
