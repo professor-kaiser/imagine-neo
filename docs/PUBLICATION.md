@@ -13,6 +13,16 @@ Le README français et anglais, une description précise et les topics GitHub ai
 découvrir le projet sur GitHub et les moteurs de recherche.
 Un tag de version désigne un instant du code ; les topics sont des mots-clés de découverte.
 
+## Vérification de propriété préparée
+
+La balise HTML fournie par le propriétaire le 8 novembre 2026 est ajoutée dans le
+`head` de la page. Après le déploiement, revenez dans la propriété Search Console
+et cliquez **Valider**. Cette balise prouve la propriété ; elle ne demande pas à elle seule l’indexation.
+
+Après validation, ouvrez **Sitemaps** et envoyez `sitemap.xml`,
+puis **Inspection de l’URL** pour la page d’accueil et **Demander une indexation**.
+Le compte Google du propriétaire doit effectuer ces actions.
+
 ## Google Search Console
 
 La page contient un titre descriptif, une description, une URL canonique, les directives
