@@ -4,6 +4,15 @@ Les traitements s'ajoutent dans `plugins/`, avec une classe dérivée de
 `app.plugins.ImagePlugin` et un YAML enfant. Les formulaires WinUI sont générés
 à partir du catalogue : aucune branche ni interface spécifique par plugin.
 
+## Démarrer avec un exemple complet
+
+Le [README principal](../README.md#créer-un-plugin-de-bout-en-bout) explique la création d’un plugin
+de bout en bout. Le [README du backend](../backend/README.md) montre la liaison YAML → contrôles WinUI → constructeur Python,
+notamment `color_bgra`, `color_hsv`, listes de choix et champs numériques.
+Les [fichiers d’exemple](examples/README.md) peuvent être copiés sous `plugins/` et exécutés dans un catalogue isolé.
+
+Ce guide est la référence détaillée des entrées, des masques, des paramètres et des résultats.
+
 ## Organisation
 
 `plugins/plugins.yaml` déclare les dossiers :
@@ -241,26 +250,17 @@ L'original reste disponible. Chaque résultat peut être annulé jusqu'à sa sou
 Les masques, paramètres et sources sont conservés pendant la session ; **Save as**
 exporte les pixels de l'image en PNG/JPEG, pas un projet avec masques.
 
-## Segments k-means
+## Segmentation k-means : état actuel
 
-Dans **Segmentation d'images**, choisissez **k-means** puis **Nombre de clusters**.
-Le plugin retourne une liste d’images BGRA, une par cluster, chacune recadrée sur
-son rectangle englobant. Seuls les pixels du cluster sont visibles ; les autres
-pixels du rectangle sont transparents. Les couleurs et l’alpha d’origine sont conservés.
+Le plugin de segmentation propose un mode k-means avec nombre de clusters et espace
+colorimétrique. Son implémentation actuelle possède des échecs de validation connus :
+sélection et masques, transparence, dimensions des segments et limites de clusters.
+Consultez [STATUS.md](STATUS.md) avant de l’utiliser comme référence d’implémentation.
 
-Le calcul utilise les couleurs BGR des pixels visibles dans la sélection Rect
-(ou toute l’image), intersectée avec tous les masques cochés. Comme le mode seuil
-de ce plugin, plusieurs masques se combinent par intersection. Les pixels exclus
-ne participent ni au calcul ni aux segments retournés. L’original reste intact.
-
-Un cluster peut contenir plusieurs zones séparées de couleur proche : elles
-restent dans un même segment. Les segments sont présentés selon leur premier pixel
-dans l’ordre de lecture. Chaque résultat devient une image de la bibliothèque,
-avec l’historique commun ; aucune copie de l’image complète n’est ajoutée en plus.
-
-Le nombre de clusters est compris entre 2 et 64, limite commune des résultats
-de plugins. Il ne peut pas dépasser le nombre de pixels visibles retenus.
-Une sélection ou une intersection de masques vide produit un message d’erreur.
+Le contrat commun permet de retourner des images de dimensions libres ; il ne prouve pas
+que chaque plugin existant satisfait déjà toutes les exigences de ses tests.
+Pour démarrer un nouveau plugin, utilisez plutôt le [tutoriel de teinte](../README.md#créer-un-plugin-de-bout-en-bout)
+et [DenoisePlugin](../plugins/denoise/plugin.py), qui montrent les copies, l’alpha et les masques.
 
 ## Paramètres du constructeur
 

@@ -43,3 +43,10 @@ La capture de l’atelier de dessin provient d’un test réel de l’interface 
 - Sauvegarde et restauration d’un projet complet avec historique et masques.
 
 Le code de traitement existant est publié avec cet état explicite.
+
+## Documentation de plugins
+
+`scripts/verify_docs.py` exécute l’exemple de teinte publié dans les README français, anglais et backend
+avec le catalogue et l’exécuteur réels. Il vérifie les couleurs, l’alpha, les pixels hors sélection,
+les masques et l’original. Le catalogue d’exemples est isolé du catalogue de production.
+Ce contrôle est aussi exécuté par le workflow de publication.

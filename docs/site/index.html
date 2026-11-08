@@ -4,14 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Imagine Neo — éditeur d’images Windows avec plugins Python et OpenCV</title>
-  <meta name="description" content="Découvrez Imagine Neo, éditeur d’images Windows en C# et WinUI 3 : plugins Python OpenCV, masques, dessin et démo interactive de débruitage.">
+  <meta name="description" content="Imagine Neo : éditeur Windows à plugins Python OpenCV. Installation complète, tutoriel YAML vers WinUI, palettes couleur, masques et démo interactive.">
   <meta name="google-site-verification" content="K5CdRtspsfwf-hyQyXUpuN-WaqovfcwzDqsl-N7XAag" />
   <meta name="robots" content="index, follow, max-image-preview:large">
   <link rel="canonical" href="https://professor-kaiser.github.io/imagine-neo/">
   <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="fr_FR">
-  <meta property="og:title" content="Imagine Neo — votre atelier d’images sur Windows">
+  <meta property="og:title" content="Imagine Neo — éditeur Windows et plugins Python OpenCV">
   <meta property="og:description" content="Une interface WinUI 3, des plugins Python OpenCV et une démo avant/après. Explorez le code et les possibilités.">
   <meta property="og:url" content="https://professor-kaiser.github.io/imagine-neo/">
   <meta property="og:image" content="https://professor-kaiser.github.io/imagine-neo/assets/social-preview.png">
@@ -30,12 +30,12 @@
   <a class="skip" href="#content">Aller au contenu</a>
   <header class="nav wrap">
     <a class="brand" href="./"><img src="assets/logo.svg" alt="" width="42" height="42">imagine neo</a>
-    <nav aria-label="Navigation principale"><a href="#demo">Démo</a><a href="#features">Fonctionnalités</a><a href="#start">Installer</a><a href="https://github.com/professor-kaiser/imagine-neo">GitHub ↗</a></nav>
+    <nav aria-label="Navigation principale"><a href="#demo">Démo</a><a href="#plugins">Plugins</a><a href="#start">Installer</a><a href="https://github.com/professor-kaiser/imagine-neo">GitHub ↗</a></nav>
   </header>
   <main id="content">
     <section class="hero wrap">
       <p class="eyebrow"><span class="dot"></span> Windows · Python · OpenCV</p>
-      <h1>Un atelier d’images.<br><span>Des possibilités à coder.</span></h1>
+      <h1>Votre atelier d’images.<br><span>Vos plugins Python.</span></h1>
       <p class="lead">Imagine Neo associe une interface Windows native à des plugins de traitement d’image Python. Explorez, sélectionnez, dessinez et créez vos propres outils.</p>
       <div class="actions"><a class="button primary" href="#demo">Explorer la démo <span>↓</span></a><a class="button secondary" href="https://github.com/professor-kaiser/imagine-neo">Voir le code sur GitHub ↗</a></div>
       <p class="caption">Version en développement · Code disponible sur GitHub · Traitement local dans l’application</p>
@@ -66,12 +66,41 @@
       </div>
       <div class="status"><strong>Un projet en développement</strong><p>Le bilatéral, la pipette, la palette et certains outils sont incomplets. La segmentation a des échecs de validation connus. L’historique est limité à la session ; l’export enregistre une image PNG ou JPEG.</p><a href="https://github.com/professor-kaiser/imagine-neo/blob/main/docs/STATUS.md">Consulter l’état des vérifications ↗</a></div>
     </section>
-    <section class="section wrap start" id="start">
-      <div><p class="eyebrow">À vous de jouer</p><h2>Lancez Imagine Neo.</h2><p>Windows 11 x64, Git, SDK .NET 8 x64 et Miniforge / Conda. Ouvrez CMD avec ces outils accessibles.</p><a href="https://github.com/professor-kaiser/imagine-neo#installation-depuis-les-sources">Lire le guide d’installation ↗</a></div>
-      <pre><code>git clone https://github.com/professor-kaiser/imagine-neo.git
+    <section class="section wrap" id="plugins">
+      <div class="section-heading"><div><p class="eyebrow">Créez votre outil</p><h2>Une classe Python.<br>Un YAML. Une interface.</h2></div><p>Le catalogue construit les paramètres de votre plugin dans Properties.</p></div>
+      <div class="plugin-guide">
+        <div><h3>Du filtre à son interface</h3><ol><li>Créez une classe dérivée de <code>ImagePlugin</code> dans <code>plugins/tint/plugin.py</code>.</li><li>Déclarez sa classe, son fichier et ses paramètres dans le YAML enfant.</li><li>Ajoutez le dossier au catalogue principal, puis rechargez avec <strong>Reconnect</strong>.</li><li>Choisissez la palette et l’intensité, puis cliquez sur <strong>Apply</strong>.</li></ol><p>Le type <code>color_bgra</code> affiche une palette avec alpha ; Python reçoit <code>[B, G, R, A]</code>. Le type <code>color_hsv</code> affiche une roue HSV.</p><p>Le tutoriel fournit les fichiers complets et vérifie l’original, les masques et la sélection.</p><a href="https://github.com/professor-kaiser/imagine-neo#créer-un-plugin-de-bout-en-bout">Suivre le tutoriel complet ↗</a></div>
+        <pre><code>file: plugin.py
+class: TintPlugin
+parameters:
+  color:
+    type: color_bgra
+    label: Couleur de teinte
+    default: [0, 0, 255, 128]
+  amount:
+    type: number
+    label: Intensité
+    default: 0.4
+    min: 0
+    max: 1</code></pre>
+      </div>
+      <div class="parameter-table"><table><caption>Le YAML choisit les contrôles communs</caption><thead><tr><th>Type</th><th>Dans l’interface</th><th>Dans Python</th></tr></thead><tbody><tr><td><code>color_bgra</code></td><td>Palette couleur et alpha</td><td>Liste B, G, R, A</td></tr><tr><td><code>color_hsv</code></td><td>Roue H/S et luminosité V</td><td>Liste H, S, V OpenCV</td></tr><tr><td><code>number / integer</code></td><td>Champ numérique</td><td>float / int</td></tr><tr><td><code>text + choices</code></td><td>Liste déroulante</td><td>str</td></tr><tr><td><code>boolean</code></td><td>Case à cocher</td><td>bool</td></tr></tbody></table></div>
+      <p class="caption">Les nouveaux plugins utilisent l’interface commune, sans bouton ni formulaire WinUI dédié. <a href="https://github.com/professor-kaiser/imagine-neo/blob/main/backend/README.md">Voir la liaison backend / front ↗</a></p>
+    </section>
+    <section class="section wrap" id="start">
+      <p class="eyebrow">Installer sur un nouveau PC</p><h2>Les trois étapes pour démarrer.</h2>
+      <p class="install-lead">Windows 11 x64 et une connexion Internet pour la première installation. Git, le SDK .NET 8 et Miniforge doivent être installés avant le lancement.</p>
+      <div class="install-step"><div><span class="number">01 / OUTILS</span><h3>Installez les prérequis.</h3><p>Dans <strong>PowerShell</strong>, utilisez Winget. Installez le SDK .NET, qui sert à compiler l’interface, et Miniforge pour Conda.</p><p>Sans Winget : <a href="https://gitforwindows.org/">Git</a> · <a href="https://dotnet.microsoft.com/download/dotnet/8.0">SDK .NET 8 x64</a> · <a href="https://github.com/conda-forge/miniforge#install">Miniforge Windows x86_64</a>.</p></div><pre><code>winget install --id Git.Git --exact
+winget install --id Microsoft.DotNet.SDK.8 --exact --architecture x64
+winget install --id CondaForge.Miniforge3 --exact --architecture x64</code></pre></div>
+      <div class="install-step"><div><span class="number">02 / DÉPENDANCES</span><h3>Préparez le moteur Python.</h3><p>Fermez les anciens terminaux et ouvrez <strong>Miniforge Prompt</strong> depuis Démarrer. Le script installe Python 3.12, NumPy, OpenCV, pywin32, PyYAML et les outils de test.</p></div><pre><code>git clone https://github.com/professor-kaiser/imagine-neo.git
 cd imagine-neo
-scripts\setup_conda.cmd
-scripts\run_all.cmd</code></pre>
+scripts\setup_conda.cmd</code></pre></div>
+      <div class="install-step"><div><span class="number">03 / LANCEMENT</span><h3>Compilez et ouvrez l’atelier.</h3><p>Toujours dans <strong>Miniforge Prompt</strong>, à la racine du dépôt. Le lanceur restaure NuGet, compile C#, vérifie les plugins et démarre l’application.</p></div><pre><code>scripts\run_all.cmd
+
+rem Variante optimisée :
+scripts\run_all.cmd Release</code></pre></div>
+      <div class="status"><strong>Ce que l’installation fournit</strong><p>Le parcours actuel utilise les sources, sans installateur autonome. Visual Studio n’est pas nécessaire pour la configuration C# actuelle. Les outils de compilation Windows et le runtime Windows App SDK sont restaurés avec la compilation ; les prérequis Git, SDK .NET et Miniforge restent à installer.</p><a href="https://github.com/professor-kaiser/imagine-neo#installation-depuis-les-sources">Guide détaillé et dépannage ↗</a></div>
     </section>
     <section class="section wrap english" lang="en"><p class="eyebrow">English</p><h2>A Windows image editor you can extend.</h2><p>Imagine Neo combines C# / WinUI 3 and Win2D with a local Python / NumPy / OpenCV backend. Build YAML plugins, work with image masks and explore real before/after outputs. This is a development preview.</p><a href="https://github.com/professor-kaiser/imagine-neo/blob/main/README.en.md">Read the English documentation ↗</a></section>
   </main>

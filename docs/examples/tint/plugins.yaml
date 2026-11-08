@@ -1,0 +1,20 @@
+version: 1
+plugins:
+  - id: tint
+    name: Teinte personnalisée
+    description: Mélange une couleur avec l'image, en conservant son alpha.
+    file: plugin.py
+    class: TintPlugin
+    output_kind: image
+    parameters:
+      color:
+        type: color_bgra
+        label: Couleur de teinte
+        default: [0, 0, 255, 128]
+      amount:
+        type: number
+        label: Intensité
+        description: 0 conserve l'image ; 1 utilise toute la force de la couleur.
+        default: 0.4
+        min: 0
+        max: 1

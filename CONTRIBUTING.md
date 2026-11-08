@@ -17,3 +17,7 @@ indiquez dans votre pull request les commandes exécutées et les nouveaux éche
 
 Pour une modification du site, lancez `python scripts/verify_publication.py` dans l’environnement `photolab`
 et testez le comparateur au clavier comme à la souris.
+
+Les détails de maintenance sont regroupés dans [FURTHER](FURTHER/README.md).
+Pour modifier le tutoriel de plugin, vérifiez aussi les [exemples exécutables](docs/examples/README.md)
+avec `python scripts/verify_docs.py` dans photolab.

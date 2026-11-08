@@ -73,14 +73,27 @@ def static_checks():
             assert target.is_relative_to(SITE.resolve()) and target.exists(), link
         if parsed.fragment and not parsed.path:
             assert parsed.fragment in page.ids, link
-    for file in [ROOT / "README.md", ROOT / "README.en.md", ROOT / "CONTRIBUTING.md",
-                 ROOT / "docs" / "PUBLICATION.md", ROOT / "docs" / "STATUS.md"]:
+    markdown_files = [ROOT / "README.md", ROOT / "README.en.md", ROOT / "CONTRIBUTING.md",
+                      ROOT / "backend" / "README.md"]
+    markdown_files += sorted((ROOT / "docs").rglob("*.md"))
+    markdown_files += sorted((ROOT / "FURTHER").rglob("*.md"))
+    for file in markdown_files:
         content = file.read_text(encoding="utf-8")
         assert not re.search(r"__(?:SITE|OWNER|REPOSITORY|LICENSE_LINE(?:_EN)?)__", content), file
         for link in re.findall(r"\]\(([^)]+)\)", content):
             parsed = urlsplit(link)
-            if not parsed.scheme and not parsed.netloc and parsed.path:
-                assert (file.parent / unquote(parsed.path)).exists(), (file, link)
+            if not parsed.scheme and not parsed.netloc:
+                target = (file.parent / unquote(parsed.path)).resolve() if parsed.path else file.resolve()
+                assert target.is_relative_to(ROOT.resolve()) and target.exists(), (file, link)
+                if parsed.fragment and target.suffix == ".md":
+                    counts = {}
+                    ids = set()
+                    for heading in re.findall(r"^#{1,6} (.+)$", target.read_text(encoding="utf-8"), re.M):
+                        slug = re.sub(r"[^\w -]", "", heading.lower()).replace(" ", "-")
+                        count = counts.get(slug, 0)
+                        counts[slug] = count + 1
+                        ids.add(slug if count == 0 else slug + "-" + str(count))
+                    assert unquote(parsed.fragment) in ids, (file, link, "missing heading")
     assert not re.search(r"__(?:SITE|OWNER|REPOSITORY)__", html)
     for asset in ["original.png", "denoise.png", "grayscale.png", "social-preview.png", "workspace.png", "logo.svg", "demo.json"]:
         assert (SITE / "assets" / asset).is_file(), asset
